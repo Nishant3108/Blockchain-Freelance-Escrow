@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>FreelanceEscrow</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.7.0/ethers.umd.min.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: system-ui, sans-serif; background: #0f172a; color: #e2e8f0; min-height: 100vh; }
+    header { background: #1e293b; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #334155; }
+    header h1 { font-size: 1.25rem; font-weight: 600; color: #38bdf8; }
+    .wallet-info { display: flex; align-items: center; gap: 12px; font-size: 13px; color: #94a3b8; }
+    .badge { background: #0f4c75; color: #38bdf8; padding: 4px 10px; border-radius: 20px; font-size: 12px; }
+    button { cursor: pointer; border: none; border-radius: 8px; font-size: 13px; font-weight: 500; padding: 8px 16px; transition: opacity 0.2s; }
+    button:hover { opacity: 0.85; }
+    button:disabled { opacity: 0.4; cursor: not-allowed; }
+    .btn-primary { background: #38bdf8; color: #0f172a; }
+    .btn-success { background: #22c55e; color: #fff; }
+    .btn-warning { background: #f59e0b; color: #0f172a; }
+    .btn-danger { background: #ef4444; color: #fff; }
+    .btn-purple { background: #a855f7; color: #fff; }
+    .btn-gray { background: #475569; color: #fff; }
+    .btn-teal { background: #14b8a6; color: #fff; }
+    main { max-width: 1100px; margin: 2rem auto; padding: 0 1.5rem; }
+    .section-title { font-size: 1rem; font-weight: 600; color: #94a3b8; margin-bottom: 1rem; text-transform: uppercase; letter-spacing: 0.05em; }
+    .card { background: #1e293b; border: 1px solid #334155; border-radius: 12px; padding: 1.5rem; margin-bottom: 1rem; }
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .form-group { display: flex; flex-direction: column; gap: 6px; }
+    .form-group.full { grid-column: 1 / -1; }
+    label { font-size: 12px; color: #94a3b8; font-weight: 500; }
+    input { background: #0f172a; border: 1px solid #334155; border-radius: 8px; padding: 10px 12px; color: #e2e8f0; font-size: 14px; width: 100%; }
+    input:focus { outline: none; border-color: #38bdf8; }
+    .jobs-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 1rem; }
+    .job-card { background: #1e293b; border: 1px solid #334155; border-radius: 12px; padding: 1.25rem; }
+    .job-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+    .job-id { font-size: 13px; font-weight: 600; color: #38bdf8; }
+    .state-badge { padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+    .state-0 { background: #1e3a5f; color: #38bdf8; }
+    .state-1 { background: #1a3a2a; color: #22c55e; }
+    .state-2 { background: #1a2e1a; color: #86efac; }
+    .state-3 { background: #3a1f1f; color: #ef4444; }
+    .state-4 { background: #2d2a1a; color: #f59e0b; }
+    .state-5 { background: #2a2a2a; color: #94a3b8; }
+    .job-detail { font-size: 12px; color: #64748b; margin-bottom: 4px; }
+    .job-detail span { color: #94a3b8; }
+    .job-actions { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
+    .milestones { margin: 10px 0; }
+    .milestone-row { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
+    .milestone-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+    .milestone-done { background: #22c55e; }
+    .milestone-pending { background: #475569; }
+    .milestone-current { background: #38bdf8; }
+    .milestone-text { font-size: 12px; color: #94a3b8; }
+    .alert { padding: 10px 14px; border-radius: 8px; font-size: 13px; margin-bottom: 1rem; }
+    .alert-success { background: #14532d; color: #86efac; border: 1px solid #16a34a; }
+    .alert-error { background: #450a0a; color: #fca5a5; border: 1px solid #dc2626; }
+    .connect-screen { text-align: center; padding: 4rem 2rem; }
+    .connect-screen h2 { font-size: 1.5rem; margin-bottom: 0.5rem; }
+    .connect-screen p { color: #64748b; margin-bottom: 1.5rem; }
+    .tip-input { display: flex; gap: 8px; align-items: center; margin-top: 8px; }
+    .tip-input input { width: 100px; }
+    #loading { display: none; color: #94a3b8; font-size: 13px; margin: 1rem 0; }
+    .empty-state { text-align: center; padding: 3rem; color: #475569; }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>FreelanceEscrow</h1>
+  <div class="wallet-info">
+    <span id="wallet-address">Not connected</span>
+    <span id="network-badge" class="badge" style="display:none">Sepolia</span>
+    <button class="btn-primary" id="connect-btn" onclick="connectWallet()">Connect Wallet</button>
+  </div>
+</header>
+
+<main>
+  <div id="alert-box" style="display:none"></div>
+  <div id="loading">Loading jobs...</div>
+
+  <div id="connect-screen" class="connect-screen">
+    <h2>Decentralized Freelance Escrow</h2>
+    <p>Connect your MetaMask wallet to get started</p>
+    <button class="btn-primary" onclick="connectWallet()" style="font-size:1rem;padding:12px 28px">Connect MetaMask</button>
+  </div>
+
+  <div id="app" style="display:none">
+
+    <!-- Create Job -->
+    <p class="section-title">Post a New Job</p>
+    <div class="card">
+      <div class="form-grid">
+        <div class="form-group full">
+          <label>Arbiter Address</label>
+          <input id="arbiter-input" placeholder="0x... trusted arbiter wallet address" />
+        </div>
+        <div class="form-group full">
+          <label>Milestone Amounts (ETH) — separate with commas e.g. 0.01, 0.02</label>
+          <input id="milestones-input" placeholder="0.01, 0.02, 0.03" />
+        </div>
+      </div>
+      <div style="margin-top:12px">
+        <button class="btn-primary" onclick="createJob()">Post Job & Lock ETH</button>
+      </div>
+    </div>
+
+    <!-- Jobs Dashboard -->
+    <p class="section-title" style="margin-top:2rem">All Jobs <button class="btn-gray" onclick="loadJobs()" style="font-size:11px;padding:4px 10px;margin-left:8px">Refresh</button></p>
+    <div id="jobs-container" class="jobs-grid">
+      <div class="empty-state">No jobs yet. Post one above!</div>
+    </div>
+
+  </div>
+</main>
+
+<script>
+  const CONTRACT_ADDRESS = "0x5b4e2819cF58DD50809a8eE904618e5227F76B0E";
+  const ABI = [
+    "function jobCounter() view returns (uint256)",
+    "function jobs(uint256) view returns (uint256 id, address client, address freelancer, address arbiter, uint256 completedMilestones, uint256 originalMilestones, uint256 escrowBalance, uint8 state)",
+    "function getMilestones(uint256) view returns (uint256[])",
+    "function createJob(address, uint256[]) payable",
+    "function cancelJob(uint256)",
+    "function acceptJob(uint256)",
+    "function approveMilestone(uint256)",
+    "function addMilestone(uint256) payable",
+    "function concludeJob(uint256)",
+    "function tipFreelancer(uint256) payable",
+    "function raiseDispute(uint256)",
+    "function resolveDispute(uint256, uint256, uint256)"
+  ];
+
+  const STATE_LABELS = ["OPEN", "IN PROGRESS", "COMPLETED", "IN DISPUTE", "RESOLVED", "REFUNDED"];
+  const STATE_CLASSES = ["state-0", "state-1", "state-2", "state-3", "state-4", "state-5"];
+
+  let provider, signer, contract, userAddress;
+
+  async function connectWallet() {
+    if (!window.ethereum) return showAlert("MetaMask not found! Please install it.", "error");
+    try {
+      provider = new ethers.BrowserProvider(window.ethereum);
+      await provider.send("eth_requestAccounts", []);
+      signer = await provider.getSigner();
+      userAddress = await signer.getAddress();
+      contract = new ethers.Contract(CONTRACT_ADDRESS, ABI, signer);
+
+      const network = await provider.getNetwork();
+      if (network.chainId !== 11155111n) {
+        showAlert("Please switch MetaMask to Sepolia testnet!", "error");
+        return;
+      }
+
+      document.getElementById("wallet-address").textContent = userAddress.slice(0,6) + "..." + userAddress.slice(-4);
+      document.getElementById("network-badge").style.display = "inline";
+      document.getElementById("connect-btn").textContent = "Connected";
+      document.getElementById("connect-btn").disabled = true;
+      document.getElementById("connect-screen").style.display = "none";
+      document.getElementById("app").style.display = "block";
+
+      await loadJobs();
+    } catch (e) {
+      showAlert("Connection failed: " + e.message, "error");
+    }
+  }
+
+  async function createJob() {
+    try {
+      const arbiter = document.getElementById("arbiter-input").value.trim();
+      const milestonesRaw = document.getElementById("milestones-input").value.trim();
+      if (!arbiter || !milestonesRaw) return showAlert("Fill in all fields!", "error");
+
+      const amounts = milestonesRaw.split(",").map(m => ethers.parseEther(m.trim()));
+      const total = amounts.reduce((a, b) => a + b, 0n);
+
+      showAlert("Sending transaction...", "success");
+      const tx = await contract.createJob(arbiter, amounts, { value: total });
+      await tx.wait();
+      showAlert("Job created successfully!", "success");
+      document.getElementById("arbiter-input").value = "";
+      document.getElementById("milestones-input").value = "";
+      await loadJobs();
+    } catch (e) {
+      showAlert("Error: " + (e.reason || e.message), "error");
+    }
+  }
+
+  async function loadJobs() {
+    if (!contract) return;
+    document.getElementById("loading").style.display = "block";
+    try {
+      const count = await contract.jobCounter();
+      const container = document.getElementById("jobs-container");
+
+      if (count === 0n) {
+        container.innerHTML = '<div class="empty-state">No jobs yet. Post one above!</div>';
+        return;
+      }
+
+      const cards = [];
+      for (let i = 1n; i <= count; i++) {
+        const job = await contract.jobs(i);
+        const milestones = await contract.getMilestones(i);
+        cards.push(renderJobCard(i, job, milestones));
+      }
+      container.innerHTML = cards.join("");
+    } catch (e) {
+      showAlert("Error loading jobs: " + e.message, "error");
+    }
+    document.getElementById("loading").style.display = "none";
+  }
+
+  function renderJobCard(id, job, milestones) {
+    const state = Number(job.state);
+    const isClient = userAddress?.toLowerCase() === job.client?.toLowerCase();
+    const isFreelancer = userAddress?.toLowerCase() === job.freelancer?.toLowerCase();
+    const isArbiter = userAddress?.toLowerCase() === job.arbiter?.toLowerCase();
+    const balance = ethers.formatEther(job.escrowBalance);
+    const completed = Number(job.completedMilestones);
+
+    let milestonesHtml = '<div class="milestones">';
+    milestones.forEach((m, idx) => {
+      let dotClass = idx < completed ? "milestone-done" : idx === completed ? "milestone-current" : "milestone-pending";
+      let label = idx < completed ? "Paid" : idx === completed ? "Current" : "Pending";
+      milestonesHtml += `
+        <div class="milestone-row">
+          <div class="milestone-dot ${dotClass}"></div>
+          <span class="milestone-text">Milestone ${idx + 1}: ${ethers.formatEther(m)} ETH — ${label}</span>
+        </div>`;
+    });
+    milestonesHtml += "</div>";
+
+    let actions = '<div class="job-actions">';
+
+    if (state === 0 && isClient) {
+      actions += `<button class="btn-danger" onclick="cancelJob(${id})">Cancel Job</button>`;
+    }
+    if (state === 0 && !isClient && !isArbiter) {
+      actions += `<button class="btn-success" onclick="acceptJob(${id})">Accept Job</button>`;
+    }
+    if (state === 1 && isClient) {
+      actions += `<button class="btn-success" onclick="approveMilestone(${id})">Approve Milestone</button>`;
+      actions += `<button class="btn-primary" onclick="showAddMilestone(${id})">Add Milestone</button>`;
+    }
+    if (state === 1 && (isClient || isFreelancer)) {
+      actions += `<button class="btn-warning" onclick="raiseDispute(${id})">Raise Dispute</button>`;
+    }
+    if (state === 1 && isFreelancer) {
+      actions += `<button class="btn-gray" onclick="concludeJob(${id})">Conclude Job</button>`;
+    }
+    if ((state === 1 || state === 2)) {
+      actions += `
+        <div class="tip-input">
+          <input id="tip-${id}" placeholder="ETH" style="width:80px" />
+          <button class="btn-teal" onclick="tipFreelancer(${id})">Tip</button>
+        </div>`;
+    }
+    if (state === 3 && isArbiter) {
+      actions += `
+        <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-top:4px">
+          <input id="client-share-${id}" placeholder="Client ETH" style="width:100px" />
+          <input id="freelancer-share-${id}" placeholder="Freelancer ETH" style="width:120px" />
+          <button class="btn-purple" onclick="resolveDispute(${id})">Resolve</button>
+        </div>`;
+    }
+    if (state === 1 && isFreelancer) {
+      actions += `<div id="add-milestone-${id}" style="display:none;margin-top:8px">
+        <div style="display:flex;gap:6px">
+          <input id="new-milestone-${id}" placeholder="ETH amount" style="width:120px"/>
+          <button class="btn-primary" onclick="addMilestone(${id})">Confirm Add</button>
+        </div>
+      </div>`;
+    }
+
+    actions += "</div>";
+
+    return `
+      <div class="job-card">
+        <div class="job-header">
+          <span class="job-id">Job #${id}</span>
+          <span class="state-badge ${STATE_CLASSES[state]}">${STATE_LABELS[state]}</span>
+        </div>
+        <div class="job-detail">Client: <span>${job.client.slice(0,6)}...${job.client.slice(-4)}</span></div>
+        <div class="job-detail">Freelancer: <span>${job.freelancer === "0x0000000000000000000000000000000000000000" ? "Not assigned" : job.freelancer.slice(0,6)+"..."+job.freelancer.slice(-4)}</span></div>
+        <div class="job-detail">Arbiter: <span>${job.arbiter.slice(0,6)}...${job.arbiter.slice(-4)}</span></div>
+        <div class="job-detail">Escrow Balance: <span>${balance} ETH</span></div>
+        ${milestonesHtml}
+        ${actions}
+      </div>`;
+  }
+
+  async function cancelJob(id) {
+    try {
+      showAlert("Cancelling job...", "success");
+      const tx = await contract.cancelJob(id);
+      await tx.wait();
+      showAlert("Job cancelled, ETH refunded!", "success");
+      await loadJobs();
+    } catch(e) { showAlert("Error: " + (e.reason || e.message), "error"); }
+  }
+
+  async function acceptJob(id) {
+    try {
+      showAlert("Accepting job...", "success");
+      const tx = await contract.acceptJob(id);
+      await tx.wait();
+      showAlert("Job accepted!", "success");
+      await loadJobs();
+    } catch(e) { showAlert("Error: " + (e.reason || e.message), "error"); }
+  }
+
+  async function approveMilestone(id) {
+    try {
+      showAlert("Approving milestone...", "success");
+      const tx = await contract.approveMilestone(id);
+      await tx.wait();
+      showAlert("Milestone approved, ETH released!", "success");
+      await loadJobs();
+    } catch(e) { showAlert("Error: " + (e.reason || e.message), "error"); }
+  }
+
+  async function raiseDispute(id) {
+    try {
+      showAlert("Raising dispute...", "success");
+      const tx = await contract.raiseDispute(id);
+      await tx.wait();
+      showAlert("Dispute raised!", "success");
+      await loadJobs();
+    } catch(e) { showAlert("Error: " + (e.reason || e.message), "error"); }
+  }
+
+  async function concludeJob(id) {
+    try {
+      showAlert("Concluding job...", "success");
+      const tx = await contract.concludeJob(id);
+      await tx.wait();
+      showAlert("Job concluded!", "success");
+      await loadJobs();
+    } catch(e) { showAlert("Error: " + (e.reason || e.message), "error"); }
+  }
+
+  async function tipFreelancer(id) {
+    try {
+      const val = document.getElementById("tip-" + id).value.trim();
+      if (!val) return showAlert("Enter tip amount!", "error");
+      showAlert("Sending tip...", "success");
+      const tx = await contract.tipFreelancer(id, { value: ethers.parseEther(val) });
+      await tx.wait();
+      showAlert("Tip sent!", "success");
+      await loadJobs();
+    } catch(e) { showAlert("Error: " + (e.reason || e.message), "error"); }
+  }
+
+  async function addMilestone(id) {
+    try {
+      const val = document.getElementById("new-milestone-" + id).value.trim();
+      if (!val) return showAlert("Enter milestone amount!", "error");
+      showAlert("Adding milestone...", "success");
+      const tx = await contract.addMilestone(id, { value: ethers.parseEther(val) });
+      await tx.wait();
+      showAlert("Milestone added!", "success");
+      await loadJobs();
+    } catch(e) { showAlert("Error: " + (e.reason || e.message), "error"); }
+  }
+
+  function showAddMilestone(id) {
+    const el = document.getElementById("add-milestone-" + id);
+    if (el) el.style.display = el.style.display === "none" ? "block" : "none";
+  }
+
+  async function resolveDispute(id) {
+    try {
+      const clientAmt = ethers.parseEther(document.getElementById("client-share-" + id).value.trim());
+      const freelancerAmt = ethers.parseEther(document.getElementById("freelancer-share-" + id).value.trim());
+      showAlert("Resolving dispute...", "success");
+      const tx = await contract.resolveDispute(id, clientAmt, freelancerAmt);
+      await tx.wait();
+      showAlert("Dispute resolved!", "success");
+      await loadJobs();
+    } catch(e) { showAlert("Error: " + (e.reason || e.message), "error"); }
+  }
+
+  function showAlert(msg, type) {
+    const box = document.getElementById("alert-box");
+    box.style.display = "block";
+    box.className = "alert alert-" + type;
+    box.textContent = msg;
+    if (type === "success") setTimeout(() => box.style.display = "none", 4000);
+  }
+
+  if (window.ethereum) {
+    window.ethereum.on("accountsChanged", () => location.reload());
+    window.ethereum.on("chainChanged", () => location.reload());
+  }
+</script>
+</body>
+</html>
