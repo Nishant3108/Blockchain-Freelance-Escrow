@@ -663,7 +663,7 @@ When a client adds new milestones mid-project, we need to track the original agr
 
 | Name | Role | Contribution |
 |---|---|---|
-| Nishant | Smart Contract | Wrote `FreelanceEscrow.sol` |
+| Nishant & Akshat | Smart Contract | Wrote `FreelanceEscrow.sol` |
 | Akshat | Testing | Wrote all 33 Hardhat tests |
 | Nishant & Kevin | Deployment + Frontend | Deploy script, Sepolia deployment, `index.html` |
 
