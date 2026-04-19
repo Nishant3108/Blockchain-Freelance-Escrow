@@ -663,9 +663,9 @@ When a client adds new milestones mid-project, we need to track the original agr
 
 | Name | Role | Contribution |
 |---|---|---|
-| Person 1 | Smart Contract | Wrote `FreelanceEscrow.sol` |
-| Person 2 | Testing | Wrote all 33 Hardhat tests |
-| Person 3 | Deployment + Frontend | Deploy script, Sepolia deployment, `index.html` |
+| Nishant | Smart Contract | Wrote `FreelanceEscrow.sol` |
+| Akshat | Testing | Wrote all 33 Hardhat tests |
+| Nishant & Kevin | Deployment + Frontend | Deploy script, Sepolia deployment, `index.html` |
 
 ---
 
@@ -680,7 +680,6 @@ When a client adds new milestones mid-project, we need to track the original agr
 | Mocha + Chai | Test runner and assertion library |
 | Alchemy | Sepolia RPC endpoint |
 | MetaMask | Browser wallet for signing transactions |
-| GitHub Pages | Frontend hosting |
 
 ---
 
