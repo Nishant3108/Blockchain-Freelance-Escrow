@@ -3,7 +3,9 @@
 > A trustless escrow smart contract built on Ethereum that replaces middlemen like Upwork or Fiverr. Clients lock ETH on-chain, freelancers complete milestones to earn payment, and a trusted arbiter resolves disputes — all without a central authority.
 
 **Contract on Sepolia:** 0x5b4e2819cF58DD50809a8eE904618e5227F76B0E 
+
 **Etherscan:** https://sepolia.etherscan.io/address/0x5b4e2819cF58DD50809a8eE904618e5227F76B0E 
+
 **Transaction Hash:** 0x38e002E37ff6bE9c14F160007F4a8c1FC2412dDd
 
 ---
