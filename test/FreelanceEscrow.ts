@@ -32,14 +32,14 @@ describe("FreelanceEscrow", function () {
     escrow = await deployContract();
   });
 
-  // --- 1. Deployment ---
+  // Deployment
   describe("Deployment", function () {
     it("Should start with a jobCounter of 0", async function () {
       expect(await escrow.jobCounter()).to.equal(0n);
     });
   });
 
-  // --- 2. Job Creation ---
+  // Job Creation
   describe("Job Creation", function () {
     it("Should create a job successfully", async function () {
       const milestones = [ONE_ETH, TWO_ETH];
@@ -99,7 +99,7 @@ describe("FreelanceEscrow", function () {
     });
   });
 
-  // --- 3. Job Cancellation ---
+  // Job Cancellation
   describe("Job Cancellation", function () {
     beforeEach(async function () {
       await escrow
@@ -135,7 +135,7 @@ describe("FreelanceEscrow", function () {
     });
   });
 
-  // --- 4. Job Acceptance ---
+  // Job Acceptance
   describe("Job Acceptance", function () {
     beforeEach(async function () {
       await escrow
@@ -172,7 +172,7 @@ describe("FreelanceEscrow", function () {
     });
   });
 
-  // --- 5 & 6. Milestones and Scope ---
+  // Milestones and Scope
   describe("Milestones and Scope", function () {
     beforeEach(async function () {
       await escrow
@@ -246,7 +246,7 @@ describe("FreelanceEscrow", function () {
     });
   });
 
-  // --- 7. Tipping ---
+  // Tipping
   describe("Tipping", function () {
     beforeEach(async function () {
       await escrow
@@ -279,7 +279,7 @@ describe("FreelanceEscrow", function () {
     });
   });
 
-  // --- 8. Dispute Resolution ---
+  // Dispute Resolution
   describe("Disputes", function () {
     beforeEach(async function () {
       await escrow
