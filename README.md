@@ -485,7 +485,7 @@ FreelanceEscrow deployed to: 0x5b4e28...
 Etherscan: https://sepolia.etherscan.io/address/0x5b4e28...
 ```
 
-Save the contract address and transaction hash — you need both for submission.
+Save the contract address and transaction hash.
 
 ### How the deploy script works
 
