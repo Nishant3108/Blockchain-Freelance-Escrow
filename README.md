@@ -222,7 +222,7 @@ function approveMilestone(uint256 _jobId)
 ```solidity
 uint256 payout = job.milestonePayments[job.completedMilestones];
 job.completedMilestones++;
-job.escrowBalance -= payout;
+job.bufferBalance -= payout;
 
 // Send ETH to freelancer using low-level call (safer than transfer)
 (bool success, ) = job.freelancer.call{value: payout}("");
@@ -270,12 +270,12 @@ function resolveDispute(
 ```
 
 - Only callable by the specific arbiter address set when the job was created
-- Security check: `clientAmount + freelancerAmount` must equal exactly `escrowBalance`
+- Security check: `clientAmount + freelancerAmount` must equal exactly `bufferBalance`
 - This prevents the arbiter from sending more than what is locked, or stealing funds
 
 ```solidity
 require(
-    clientAmount + freelancerAmount == job.escrowBalance,
+    clientAmount + freelancerAmount == job.bufferBalance,
     "Amounts must equal remaining balance"
 );
 ```
@@ -541,7 +541,7 @@ await contract.waitForDeployment();
 1. Either client or freelancer clicks **Raise Dispute**
 2. Job freezes at **IN DISPUTE**
 3. The arbiter sees resolve inputs appear on their screen
-4. Arbiter enters client share and freelancer share (must add up to escrow balance)
+4. Arbiter enters client share and freelancer share (must add up to buffer balance)
 5. Clicks **Resolve** — ETH splits automatically
 
 **Tipping a freelancer:**
@@ -618,7 +618,7 @@ Before writing any test code, we mapped out every scenario that needed testing:
 - Arbiter can split 50/50
 - Arbiter can give 100% to either party
 - Non-arbiter cannot resolve
-- Arbiter math must equal escrow balance
+- Arbiter math must equal buffer balance
 
 ---
 
@@ -635,9 +635,9 @@ Each job can have a different arbiter. This means:
 - No single point of failure — if one arbiter goes rogue, only their jobs are affected
 - In a production system, this arbiter role would be replaced by a DAO
 
-### Why track `escrowBalance` separately?
+### Why track `bufferBalance` separately?
 
-Instead of calling `address(this).balance`, we track `escrowBalance` per job. This means multiple jobs can exist simultaneously without their ETH getting mixed up.
+Instead of calling `address(this).balance`, we track `bufferBalance` per job. This means multiple jobs can exist simultaneously without their ETH getting mixed up.
 
 ### Why use `.call{value: amount}("")` instead of `.transfer()`?
 
