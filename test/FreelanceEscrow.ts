@@ -53,7 +53,7 @@ describe("FreelanceEscrow", function () {
 
       const job = await escrow.jobs(1n);
       expect(job.arbiter).to.equal(arbiter.address);
-      expect(job.escrowBalance).to.equal(THREE_ETH);
+      expect(job.bufferBalance).to.equal(THREE_ETH);
     });
 
     it("Should revert if math doesn't match milestones", async function () {
@@ -117,7 +117,7 @@ describe("FreelanceEscrow", function () {
 
       const job = await escrow.jobs(1n);
       expect(job.state).to.equal(5n);
-      expect(job.escrowBalance).to.equal(0n);
+      expect(job.bufferBalance).to.equal(0n);
       expect(balanceAfter + gasUsed).to.equal(balanceBefore + ONE_ETH);
     });
 
@@ -187,7 +187,7 @@ describe("FreelanceEscrow", function () {
         .withArgs(1n, 1n, ONE_ETH);
 
       const job = await escrow.jobs(1n);
-      expect(job.escrowBalance).to.equal(ONE_ETH);
+      expect(job.bufferBalance).to.equal(ONE_ETH);
     });
 
     it("Should mark job COMPLETED after final milestone approved", async function () {
@@ -196,7 +196,7 @@ describe("FreelanceEscrow", function () {
 
       const job = await escrow.jobs(1n);
       expect(job.state).to.equal(2n);
-      expect(job.escrowBalance).to.equal(0n);
+      expect(job.bufferBalance).to.equal(0n);
     });
 
     it("Should revert if an attacker tries to approve a milestone", async function () {
@@ -219,7 +219,7 @@ describe("FreelanceEscrow", function () {
         .withArgs(1n, TWO_ETH, 3n);
 
       const job = await escrow.jobs(1n);
-      expect(job.escrowBalance).to.equal(TWO_ETH + TWO_ETH);
+      expect(job.bufferBalance).to.equal(TWO_ETH + TWO_ETH);
     });
 
     it("Should revert if client adds a milestone but sends 0 ETH", async function () {
@@ -275,7 +275,7 @@ describe("FreelanceEscrow", function () {
     it("Should revert if tipping before a freelancer is assigned", async function () {
       await expect(
         escrow.connect(attacker).tipFreelancer(1n, { value: ONE_ETH }),
-      ).to.be.revertedWith("No freelancer assigned yet");
+      ).to.be.revertedWith("No freelancer has taken up this job");
     });
   });
 
@@ -317,7 +317,7 @@ describe("FreelanceEscrow", function () {
 
       const job = await escrow.jobs(1n);
       expect(job.state).to.equal(4n);
-      expect(job.escrowBalance).to.equal(0n);
+      expect(job.bufferBalance).to.equal(0n);
     });
 
     it("Should let arbiter give 100% to client", async function () {
