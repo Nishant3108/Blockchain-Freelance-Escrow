@@ -139,14 +139,14 @@ Every job is stored as a `struct` — think of it like a row in a database table
 
 ```solidity
 struct Job {
-    uint256 id;                    // Unique job number (1, 2, 3...)
+    uint256 id;                    // Number associated with job, unique to each job
     address payable client;        // Wallet that posted the job
     address payable freelancer;    // Wallet that accepted the job
-    address arbiter;               // Trusted wallet for disputes
+    address arbiter;               // Trusted wallet for dispute
     uint256[] milestonePayments;   // Array of ETH amounts per milestone
-    uint256 completedMilestones;   // How many milestones have been paid
-    uint256 originalMilestones;    // Original scope (for concludeJob)
-    uint256 escrowBalance;         // How much ETH is currently locked
+    uint256 completedMilestones;   // Number of completed milestones
+    uint256 originalMilestones;    // Number of milestones at time of creation
+    uint256 bufferBalance;         // How much ETH is currently locked
     JobState state;                // Current state from the enum above
 }
 
@@ -186,7 +186,7 @@ function createJob(
 - `payable` means this function accepts ETH
 - The client passes an array of milestone amounts like `[0.01 ether, 0.02 ether]`
 - The contract verifies that `msg.value` (ETH sent) exactly equals the sum of all milestones
-- If someone sends 0.04 ETH but milestones only add up to 0.03, it reverts — no rounding errors
+- Reverts if sum of the milestones payments and payments don't add up
 - The ETH is now locked inside the contract — nobody can touch it until a valid state transition
 
 ```solidity
