@@ -29,8 +29,8 @@ Our smart contract solves all of this. Once deployed, the rules are coded on-cha
 
 | Role | Who They Are | What They Do |
 |---|---|---|
-| **Client** | The person hiring | Posts the job, locks ETH, approves milestones |
-| **Freelancer** | The person working | Accepts jobs, completes work, receives payment |
+| **Client** | The person hiring | Posts the job, sends ETH to buffer, approves milestones |
+| **Freelancer** | The person working | Accepts jobs, completes work, receives payments in milestones |
 | **Arbiter** | A trusted third party | Only acts if there is a dispute — splits funds fairly |
 
 ### The Job Lifecycle
@@ -83,20 +83,20 @@ The client approves and pays each milestone individually. This protects both par
 freelance-escrow/
 │
 ├── contracts/
-│   └── FreelanceEscrow.sol       ← The main smart contract (Solidity)
+│   └── FreelanceEscrow.sol       -> The main smart contract (Solidity)
 |
 ├── frontend/
-│   └── index.html                ← Full web UI using ethers.js + MetaMask
+│   └── index.html                -> Full web UI using ethers.js + MetaMask
 |
 ├──ignition/modules
 |  └── Counter.ts
 |
 ├── scripts/
-│   └── deploy.ts                 ← Deployment script for Sepolia testnet
+│   └── deploy.ts                 -> Deployment script for Sepolia testnet
 |   └── send-op-tx.ts
 │
 ├── test/
-│   └── FreelanceEscrow.ts        ← 33 Hardhat tests
+│   └── FreelanceEscrow.ts        -> 33 Hardhat tests
 │
 ├── types/ether-contracts
 |   └── factories
@@ -107,10 +107,10 @@ freelance-escrow/
 |   └── hardhat.ts
 |   └── index.ts
 │
-├── hardhat.config.ts             ← Hardhat configuration (Sepolia network)
-├── .env                          ← Private keys (never committed to GitHub)
-├── .gitignore                    ← Protects .env from being pushed
-└── package.json                  ← Node.js dependencies
+├── hardhat.config.ts             -> Hardhat configuration (Sepolia network)
+├── .env                          -> Private keys (never committed to GitHub)
+├── .gitignore                    -> Protects .env from being pushed
+└── package.json                  -> Node.js dependencies
 └── README.md
 ```
 
