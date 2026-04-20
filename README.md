@@ -321,8 +321,8 @@ The `indexed` keyword makes events searchable — you can filter all `JobCreated
 ### Step 1 — Clone the repo
 
 ```bash
-git clone https://github.com/YOURUSERNAME/freelance-escrow.git
-cd freelance-escrow
+git clone https://github.com/YOURUSERNAME/Blockchain-Freelance-Escrow.git
+cd Blockchain-Freelance-Escrow
 ```
 
 ### Step 2 — Install dependencies
