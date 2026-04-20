@@ -118,7 +118,7 @@
   const CONTRACT_ADDRESS = "0x5b4e2819cF58DD50809a8eE904618e5227F76B0E";
   const ABI = [
     "function jobCounter() view returns (uint256)",
-    "function jobs(uint256) view returns (uint256 id, address client, address freelancer, address arbiter, uint256 completedMilestones, uint256 originalMilestones, uint256 escrowBalance, uint8 state)",
+    "function jobs(uint256) view returns (uint256 id, address client, address freelancer, address arbiter, uint256 completedMilestones, uint256 originalMilestones, uint256 bufferBalance, uint8 state)",
     "function getMilestones(uint256) view returns (uint256[])",
     "function createJob(address, uint256[]) payable",
     "function cancelJob(uint256)",
@@ -215,7 +215,7 @@
     const isClient = userAddress?.toLowerCase() === job.client?.toLowerCase();
     const isFreelancer = userAddress?.toLowerCase() === job.freelancer?.toLowerCase();
     const isArbiter = userAddress?.toLowerCase() === job.arbiter?.toLowerCase();
-    const balance = ethers.formatEther(job.escrowBalance);
+    const balance = ethers.formatEther(job.bufferBalance);
     const completed = Number(job.completedMilestones);
 
     let milestonesHtml = '<div class="milestones">';
