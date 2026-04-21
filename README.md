@@ -38,33 +38,33 @@ Our smart contract solves all of this. Once deployed, the rules are coded on-cha
 ### The Job Lifecycle
 
 ```
-Client posts job + locks ETH
-          ↓
-    State: OPEN
-          ↓
-Freelancer accepts job
-          ↓
-  State: IN_PROGRESS
-          ↓
-    ┌─────┴──────┐
-    │            │
-Client       Either party
-approves     raises dispute
-milestone         │
-    │        State: IN_DISPUTE
-    │             │
-ETH paid    Arbiter resolves
-to          + splits ETH
-freelancer        │
-    │        State: RESOLVED
-    │
-Final milestone?
-    ├── Yes → State: COMPLETED
-    └── No  → Stay IN_PROGRESS
+          Client posts job + locks ETH
+                    ↓
+              State: OPEN
+                    ↓
+          Freelancer accepts job
+                    ↓
+┌─- - - - - -State: IN_PROGRESS
+│                   ↓
+│             ┌─────┴──────┐
+│             │            │
+│         Client       Either party
+│         approves     raises dispute
+│         milestone         │
+│             │        State: IN_DISPUTE
+│             │             │
+│         ETH paid    Arbiter resolves
+│           to          + splits ETH
+│         freelancer        │
+│             │        State: RESOLVED
+│             │
+│         Final milestone?
+└─ - - - - -  ├── No  → Stay IN_PROGRESS  
+              └── Yes → State: COMPLETED
 
-OR: Client cancels before anyone accepts
-          ↓
-    State: REFUNDED (full ETH back to client)
+          OR: Client cancels before anyone accepts
+                    ↓
+          State: REFUNDED (full ETH back to client)
 ```
 
 ### Milestone System
@@ -127,14 +127,14 @@ enum JobState {
 
 ### The Job Struct
 
-Every job is stored as a `struct` — think of it like a row in a database table. The `mapping` connects each job ID number to its struct so we can look up any job instantly by its ID.
+Every job is stored as a struct containing the attributes shown below. The `mapping` connects each job ID number to its struct so we can look up any job instantly by its ID.
 
 ```solidity
 struct Job {
-    uint256 id;                    // Unique job number (1, 2, 3...)
+    uint256 id;                    // Job number, unique to each jon
     address payable client;        // Wallet that posted the job
     address payable freelancer;    // Wallet that accepted the job
-    address arbiter;               // Trusted wallet for disputes
+    address arbiter;               // Trusted wallet to resolve disputes
     uint256[] milestonePayments;   // Array of ETH amounts per milestone e.g. [1 ETH, 2 ETH]
     uint256 completedMilestones;   // How many milestones have been paid out so far
     uint256 originalMilestones;    // Original agreed scope (used by concludeJob)
