@@ -44,22 +44,22 @@ Our smart contract solves all of this. Once deployed, the rules are coded on-cha
                     ↓
           Freelancer accepts job
                     ↓
-┌─- - - - - -State: IN_PROGRESS
-│                   ↓
-│             ┌─────┴──────┐
-│             │            │
-│         Client       Either party
-│         approves     raises dispute
-│         milestone         │
-│             │        State: IN_DISPUTE
-│             │             │
-│         ETH paid    Arbiter resolves
-│           to          + splits ETH
-│         freelancer        │
-│             │        State: RESOLVED
-│             │
-│         Final milestone?
-└─ - - - - -  ├── No  → Stay IN_PROGRESS  
+            State: IN_PROGRESS
+                    ↓
+              ┌─────┴──────┐
+              │            │
+          Client       Either party
+          approves     raises dispute
+          milestone         │
+              │        State: IN_DISPUTE
+              │             │
+          ETH paid    Arbiter resolves
+            to          + splits ETH
+          freelancer        │
+              │        State: RESOLVED
+              │
+          Final milestone?
+              ├── No  → Stay IN_PROGRESS  
               └── Yes → State: COMPLETED
 
           OR: Client cancels before anyone accepts
