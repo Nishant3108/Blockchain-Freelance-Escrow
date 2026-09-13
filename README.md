@@ -970,17 +970,7 @@ This follows the checks-effects-interactions pattern — a best practice in Soli
 
 ---
 
-## Extra Credit Features
 
-| Feature | Points | Implementation |
-|---|---|---|
-| OpenZeppelin Integration | +1 pt | `ReentrancyGuard` imported and applied to all ETH-transferring functions |
-| Frontend | +6 pts | Full dashboard with `index.html` + ethers.js + MetaMask integration |
-| Advanced Testing | +1 pt | 33 tests covering happy paths, security attacks, and math edge cases |
-
-**Total extra credit: +8 points**
-
----
 
 ## Team
 
